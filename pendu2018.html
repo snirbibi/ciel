@@ -1,8 +1,8 @@
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   	<title></title>
- 	<link rel="stylesheet" type="text/css" href="style2018.css"> 
+ 	<link rel="stylesheet" type="text/css" href=""> 
 	
 	 <!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
@@ -48,7 +48,7 @@
 		$("#mot").hide()				;			   
 		
 		// lecture du Dictionnaire
-		$.ajax({		// requ?te AJAX en JQuery
+		$.ajax({		// requête AJAX en JQuery
                     url 		: 	'dictionnaire.txt',
                     type		: 	'GET',	// ou POST                             
                     success 	: 	handleDictionnaire,
@@ -168,7 +168,7 @@
 	/* fonction qui construit une grille (table) de 8x8 cases */
 	function BuildGrille()
 	{
-		// g?n?ration du code HTML
+		// génération du code HTML
 		grille="<table class='table table-bordered'>";
 		for(var i=0	;	i<4	;	i++)
 		{
