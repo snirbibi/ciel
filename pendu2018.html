@@ -1,0 +1,230 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  	<title></title>
+ 	<link rel="stylesheet" type="text/css" href="style2018.css"> 
+	
+	 <!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+	
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
+	
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script> 
+
+
+	<style>
+	input[type="text"]
+	{
+		font-size : 200%;
+	}
+	body{
+		background-color : brown;
+		color : white;
+		font-size : 200%;
+	}
+
+	</style>
+
+	
+	<SCRIPT>	
+	
+	// 8 images diff?rentes
+	var images	=	new Array("images/pendu0.jpg","images/pendu1.jpg", "images/pendu2.jpg", "images/pendu3.jpg", "images/pendu4.jpg", "images/pendu5.jpg", "images/pendu6.jpg", "images/pendu7.jpg");		
+	var motRecherche 	="aucun"	;
+	var motCache		=""			;  
+	var ContenuDuDictionnaire=""	;
+	var cmpt = 0 					;
+	
+	// au chargement de la page
+	$(function()    
+	{ 	 
+		Generer26LettresHTML()			;  
+		$("input:button").hide()		;		
+		$("#mot").hide()				;			   
+		
+		// lecture du Dictionnaire
+		$.ajax({		// requ?te AJAX en JQuery
+                    url 		: 	'dictionnaire.txt',
+                    type		: 	'GET',	// ou POST                             
+                    success 	: 	handleDictionnaire,
+                    error 		: 	function(resultat, statut, erreur){ alert(erreur);	       },
+                    complete 	: 	function(resultat, statut){	  	       }
+            });
+		
+		
+		//	lors d'un clic sur une lettre
+		$("img").click(function()
+		{	
+			if(MotDecouvert()==false)	// si le mot n'est pas d?j? d?couvert
+			{
+				var lettre = this.name	;  //alert(this.name)	; 
+				var trouve =0	;
+				for(var j=0	;	j<motRecherche.length	;	j++)
+				{	
+				  if(motRecherche.charAt(j)==lettre)
+				  {	 	  
+					motCache = setCharAt(motCache,2*j,lettre)	;
+					motCache = setCharAt(motCache,2*j+1," ")	;
+					trouve = 1	;
+				  }			
+				}	
+				$("#deviner").val(motCache)	;  // affichage du mot cache
+				if(trouve==0)	// une erreur de plus
+				{
+					if(cmpt<7)
+						cmpt++	;
+					else
+					{
+						$("#commentaire").html("<B>Vous avez perdu !.....</B><br>");
+						$("#commentaire").append("<B>le mot à découvrir était :" + motRecherche+"</B>");						
+						$("input:button").show()		; 
+						cmpt = 0						; 
+						motCache = ""					;
+						motRecherche =""				;  
+						$("H2").hide()					;
+						$("input[type='edit']").hide()	;
+					}					
+					$("#pendu").attr("src",images[cmpt]);
+				}
+				else
+				{		
+					if(MotDecouvert()==true)
+					{
+						 $("input:button").show()		; 
+						 $("#commentaire").text( "Bravo, vous avez réussi en " +cmpt + " essais !");
+					}
+				}
+			}
+		})	;  
+		
+		// bouton recommencer
+		$("input:button").click(function()
+		{	  
+			WordExtract()					;
+			$("input:button").hide()	  	;
+		})	;
+		
+	})	; 
+	 
+	 
+	function handleDictionnaire(dictionnaire)
+	{
+		ContenuDuDictionnaire = dictionnaire	;
+		WordExtract();
+	}
+
+	
+	// fonction de lecture al?atoire d'un mot au seim d'un texte (le contenu du dictionnaire)
+	function WordExtract()
+	{		 
+		var lines = ContenuDuDictionnaire.split('\n');
+		var nbWords = lines.length	;	//130557	
+				
+		// selection d'un mot de manière aléatoire
+		var rand = Math.round(	Math.random()*nbWords)	;
+		motRecherche 	= lines[rand]	;
+		motRecherche = motRecherche.replace(/\n|\r/g,'');	// supprime le \n
+		
+//		$("#commentaire").html( "<B>le mot à découvrir est :" + motRecherche+"</B>");
+		$("#commentaire").html( "<B>le mot à découvrir est ......</B>");
+
+		// affichage du nombre de caractères du mot au sein du champ input 
+		AfficherMotCache()	;	
+	}
+
+	// fonction qui affiche le mot cach? au sein du champ input 
+	function AfficherMotCache()
+	{		 
+  		motCache='';	
+  	 	// affichage du nombre de caract?res du mot au sein du champ input 
+		var nbChars = motRecherche.length	;	//alert(nbChars)	;
+		for(var i=0	;	i<	nbChars	;	i++)	 // le split prend le \n en plus
+			motCache	= motCache+	"_ "	; 
+		$("#deviner").val(motCache)		;
+		$("#mot").show()				;			
+	}
+
+	// fonction de remplacement d'un caract?re par un autre
+	function setCharAt(str,index,chr) 
+	{
+    	if(index > str.length-1) return str;
+			return str.substr(0,index) + chr + str.substr(index+1);
+	}			
+
+	// fonction de remplacement d'un caract?re par un autre
+	function MotDecouvert() 
+	{
+    	for(var i=0	;	i<	motCache.length 	;	i++)
+			if(motCache.charAt(i)=='_')
+				return false	;
+		return true	;
+	}   	
+	
+	/* fonction qui construit une grille (table) de 8x8 cases */
+	function BuildGrille()
+	{
+		// g?n?ration du code HTML
+		grille="<table class='table table-bordered'>";
+		for(var i=0	;	i<4	;	i++)
+		{
+			grille += "<tr>";
+			for(var j=0	;	j<7	;	j++)
+				grille += "<td class='text-center rounded' ></td>"	;
+			grille += "</tr>";			
+		}
+		grille += "</table>";			
+		$("#gauche").html(grille)	;
+	}
+	
+	function Generer26LettresHTML()	
+	{	
+		BuildGrille();
+		for(var i=65,j=0	;	i<65+26	;	i++,j++)
+			$("td:eq('"+ j +"')").html("<IMG SRC='images/08"+String.fromCharCode(i) +".gif' HEIGHT=60 NAME='"+String.fromCharCode(i)+"'</img>");
+	}
+   
+</script>			  
+</head>
+<BODY>
+	<div class="container-fluid">
+	  	<div class="page-header">
+			<div class="col" >
+				<H2 class='text-center'>Le jeu du pendu vu par la section SN-IR.... :</H2>
+			</div>
+		</div>
+		</br>	
+	  	<div class="row">
+		    <div class="col-lg-4">				
+				<input type="button" value = "Recommencer">				
+			</div>
+
+		    <div class="col-lg-8">
+				<div class="form-group" id="mot">
+				  <label for="usr">Découvrez le mot .....</label>
+				  <input type="text" class="form-control text-uppercase" id="deviner" READONLY>
+				</div>
+		
+			</div>			
+		</div>
+		
+	  	<div class="row">
+		    <div class="col-lg-7" id="gauche">
+			</div>
+
+		    <div class="col-lg-5" id="droite">			
+				<IMG SRC="images/accueil.jpg" HEIGHT=350 NAME="image" id="pendu">
+			</div>
+	  	</div>
+
+	  	<div class="row">
+			<div class="col" >
+				<div id="commentaire"> </div>
+			</div>
+		</div>
+	</div>
+</HTML>
